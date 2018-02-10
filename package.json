@@ -1,0 +1,25 @@
+{
+  "name": "217042-kekstagram-1",
+  "version": "1.0.0",
+  "description": "Node project",
+  "main": "index.js",
+  "scripts": {
+    "test:lint": "eslint .",
+    "test": "npm run test:lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Manukhova/217042-kekstagram-1.git"
+  },
+  "author": "mnkhv",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Manukhova/217042-kekstagram-1/issues"
+  },
+  "homepage": "https://github.com/Manukhova/217042-kekstagram-1#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^4.17.0",
+    "eslint-config-htmlacademy": "^0.4.2"
+  }
+}
