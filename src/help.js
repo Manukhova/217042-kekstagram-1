@@ -1,4 +1,4 @@
-const colors = require('colors');
+const colors = require(`colors`);
 
 module.exports = {
   name: `help`,
@@ -6,6 +6,6 @@ module.exports = {
   execute() {
     console.log(`Доступные команды:
       --${colors.gray(`help`)} — ${colors.green(`печатает этот текст`)};
-      --${colors.gray(`version`)} — ${colors.green(`печатает версию приложения`)}`)
+      --${colors.gray(`version`)} — ${colors.green(`печатает версию приложения`)}`);
   }
-}
+};

@@ -1,4 +1,4 @@
-const colors = require('colors');
+const colors = require(`colors`);
 const args = process.argv.slice(2).join(` `);
 
 module.exports = {

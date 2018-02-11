@@ -1,7 +1,7 @@
-const colors = require('colors');
+const colors = require(`colors`);
 
 const packageInfo = require(`../package.json`);
-const packageVersion = packageInfo.version.split('.');
+const packageVersion = packageInfo.version.split(`.`);
 const major = colors.red(packageVersion[0]);
 const minor = colors.green(packageVersion[1]);
 const patch = colors.blue(packageVersion[2]);
