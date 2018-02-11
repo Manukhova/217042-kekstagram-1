@@ -1,6 +1,6 @@
-const args = process.argv.slice(2)[0];
+const args = process.argv.slice(2);
 
-switch (args) {
+switch (args[0]) {
   case `--version`:
     console.log(`v0.0.1`);
     break;
@@ -9,15 +9,14 @@ switch (args) {
       --help    — печатает этот текст;
       --version — печатает версию приложения`);
     break;
-  case void(0):
+  case void 0:
     console.log(`Привет пользователь!
       Эта программа будет запускать сервер «Kekstagram».
       Автор: Кекс.`);
     break;
   default:
-    let defaultMsg = process.argv.slice(2).join(' ');
     console.error(`
-      Неизвестная команда ${defaultMsg}.
+      Неизвестная команда ${args.join(` `)}.
       Чтобы прочитать правила использования приложения, наберите "--help"`
     );
     process.exit(1);
