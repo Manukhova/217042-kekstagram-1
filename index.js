@@ -1,6 +1,9 @@
 const version = require(`./src/version`);
 const help = require(`./src/help`);
 const noCommand = require(`./src/nocommand`);
+const author = require(`./src/author`);
+const license = require(`./src/license`);
+const description = require(`./src/description`);
 const byDefault = require(`./src/default`);
 
 const args = process.argv.slice(2);
@@ -8,13 +11,15 @@ const args = process.argv.slice(2);
 let map = new Map();
 
 map
-    .set(`--version`, version)
-    .set(`--help`, help)
-    .set(void 0, noCommand)
-    .set(`default`, byDefault);
+    .set(`--${version.name}`, version)
+    .set(`--${help.name}`, help)
+    .set(`--${author.name}`, author)
+    .set(`--${license.name}`, license)
+    .set(`--${description.name}`, description)
+    .set(void 0, noCommand);
 
 if (map.has(args[0])) {
   map.get(args[0]).execute();
 } else {
-  map.get(`default`).execute();
+  byDefault.execute();
 }
