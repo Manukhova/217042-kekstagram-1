@@ -1,9 +1,11 @@
+const colors = require('colors');
+
 module.exports = {
   name: `help`,
   description: `Shows available commands`,
   execute() {
     console.log(`Доступные команды:
-      --help    — печатает этот текст;
-      --version — печатает версию приложения`);
+      --${colors.gray(`help`)} — ${colors.green(`печатает этот текст`)};
+      --${colors.gray(`version`)} — ${colors.green(`печатает версию приложения`)}`)
   }
-};
+}
