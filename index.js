@@ -9,16 +9,13 @@ switch (args) {
       --help    — печатает этот текст;
       --version — печатает версию приложения`);
     break;
-  case `undefined`:
+  case void(0):
     console.log(`Привет пользователь!
       Эта программа будет запускать сервер «Kekstagram».
       Автор: Кекс.`);
     break;
   default:
-    let defaultMsg = ``;
-    process.argv.slice(2).forEach((item) => {
-      defaultMsg = `${defaultMsg} ${item}`;
-    });
+    let defaultMsg = process.argv.slice(2).join(' ');
     console.error(`
       Неизвестная команда ${defaultMsg}.
       Чтобы прочитать правила использования приложения, наберите "--help"`

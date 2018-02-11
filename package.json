@@ -19,7 +19,7 @@
   "homepage": "https://github.com/Manukhova/217042-kekstagram-1#readme",
   "dependencies": {},
   "devDependencies": {
-    "eslint": "^4.17.0",
-    "eslint-config-htmlacademy": "^0.4.2"
+    "eslint": "4.17.0",
+    "eslint-config-htmlacademy": "0.4.2"
   }
 }
