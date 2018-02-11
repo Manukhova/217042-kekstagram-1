@@ -1,23 +1,20 @@
+const version = require(`./src/version`);
+const help = require(`./src/help`);
+const noCommand = require(`./src/nocommand`);
+const byDefault = require(`./src/default`);
+
 const args = process.argv.slice(2);
 
-switch (args[0]) {
-  case `--version`:
-    console.log(`v0.0.1`);
-    break;
-  case `--help`:
-    console.log(`Доступные команды:
-      --help    — печатает этот текст;
-      --version — печатает версию приложения`);
-    break;
-  case void 0:
-    console.log(`Привет пользователь!
-      Эта программа будет запускать сервер «Kekstagram».
-      Автор: Кекс.`);
-    break;
-  default:
-    console.error(`
-      Неизвестная команда ${args.join(` `)}.
-      Чтобы прочитать правила использования приложения, наберите "--help"`
-    );
-    process.exit(1);
+let map = new Map();
+
+map
+    .set(`--version`, version)
+    .set(`--help`, help)
+    .set(void 0, noCommand)
+    .set(`default`, byDefault);
+
+if (map.has(args[0])) {
+  map.get(args[0]).execute();
+} else {
+  map.get(`default`).execute();
 }
