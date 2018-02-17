@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test:lint": "eslint .",
-    "test": "npm run test:lint"
+    "test:mocha": "mocha",
+    "test": "npm run test:lint && npm run test:mocha"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
   "devDependencies": {
     "colors": "1.1.2",
     "eslint": "4.17.0",
-    "eslint-config-htmlacademy": "0.4.2"
+    "eslint-config-htmlacademy": "0.4.2",
+    "mocha": "^5.0.1"
   }
 }
