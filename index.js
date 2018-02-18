@@ -1,6 +1,6 @@
 const version = require(`./src/version`);
 const help = require(`./src/help`);
-const noCommand = require(`./src/nocommand`);
+const generate = require(`./src/generate`);
 const author = require(`./src/author`);
 const license = require(`./src/license`);
 const description = require(`./src/description`);
@@ -16,7 +16,7 @@ map
     .set(`--${author.name}`, author)
     .set(`--${license.name}`, license)
     .set(`--${description.name}`, description)
-    .set(void 0, noCommand);
+    .set(void 0, generate);
 
 if (map.has(args[0])) {
   map.get(args[0]).execute();
