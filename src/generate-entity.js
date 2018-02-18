@@ -11,7 +11,7 @@ const randomString = (word, constraint, hasSpace) => {
     `абвгдеёжзийклмнопрстуфхцчшщъыьэюя   ` : `абвгдеёжзийклмнопрстуфхцчшщъыьэюя`;
   let randomWord = word || ``;
 
-  for (let i = 0; i < Math.floor(Math.random() * constraint * 5); i++) {
+  for (let i = 0; i < Math.floor(Math.random() * constraint); i++) {
     randomWord += alphabet[Math.round(Math.random() * (alphabet.length - 1))];
   }
   return randomWord;
@@ -28,7 +28,7 @@ const generateRandomStringArray = (lengthConstraint, wordConstraint, word, hasSp
 
 const generateEntity = () => {
   return {
-    url: `https://picsum.photos/600/?${Math.ceil(Math.random() * 1000)}`,
+    url: `https://picsum.photos/600/?random`,
     scale: Math.ceil(Math.random() * 100),
     effect: effectList[randomIndex],
     hashtags: generateRandomStringArray(MAX_RANDOM_ARRAY_LENGTH, MAX_RANDOM_STRING_LENGTH, `#`),
