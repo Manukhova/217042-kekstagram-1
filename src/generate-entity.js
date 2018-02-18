@@ -28,7 +28,7 @@ const generateRandomStringArray = (lengthConstraint, wordConstraint, word, hasSp
 
 const generateEntity = () => {
   return {
-    url: `https://picsum.photos/${Math.ceil(Math.random() * 1000)}/?random`,
+    url: `https://picsum.photos/600/?${Math.ceil(Math.random() * 1000)}`,
     scale: Math.ceil(Math.random() * 100),
     effect: effectList[randomIndex],
     hashtags: generateRandomStringArray(MAX_RANDOM_ARRAY_LENGTH, MAX_RANDOM_STRING_LENGTH, `#`),

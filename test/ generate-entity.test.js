@@ -1,5 +1,5 @@
 const assert = require(`assert`);
-const generateEntity = require(`../generate-entity`);
+const generateEntity = require(`../src/generate-entity`);
 
 const generateEntityData = generateEntity();
 
@@ -16,7 +16,7 @@ describe(`generateEntity`, () => {
   });
 
   it(`should have proper value of scale key`, () => {
-    assert.ok(generateEntityData.scale >= 0);
+    assert.ok(generateEntityData.scale >= 0 && generateEntityData.scale <= 100);
   });
 
   it(`should have proper effect key`, () => {
