@@ -19,13 +19,7 @@ map
     .set(void 0, generate);
 
 if (map.has(args[0])) {
-  map.get(args[0]).execute().catch((err) => {
-    console.error(err.message);
-    process.exit(1);
-  });
+  map.get(args[0]).execute();
 } else {
-  byDefault.execute().catch((err) => {
-    console.error(err.message);
-    process.exit(1);
-  });
+  byDefault.execute();
 }
