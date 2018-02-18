@@ -1,6 +1,6 @@
 const version = require(`./src/version`);
 const help = require(`./src/help`);
-const generate = require(`./src/generate`);
+const generate = require(`./src/generate`).noCommandObject;
 const author = require(`./src/author`);
 const license = require(`./src/license`);
 const description = require(`./src/description`);
@@ -19,7 +19,13 @@ map
     .set(void 0, generate);
 
 if (map.has(args[0])) {
-  map.get(args[0]).execute();
+  map.get(args[0]).execute().catch((err) => {
+    console.error(err.message);
+    process.exit(1);
+  });
 } else {
-  byDefault.execute();
+  byDefault.execute().catch((err) => {
+    console.error(err.message);
+    process.exit(1);
+  });
 }

@@ -1,15 +1,18 @@
 const readline = require(`readline`);
 const fs = require(`fs`);
 const generateEntity = require(`./generate-entity`);
+const util = require(`util`);
+const writeFile = util.promisify(fs.writeFile);
+const open = util.promisify(fs.open);
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-const fileWriteOptions = {encoding: `utf-8`, mode: 0o644};
+const question = util.promisify(rl.question);
 
-let entityAmount;
+const fileWriteOptions = {encoding: `utf-8`, mode: 0o644};
 
 const generateData = (amount) => {
   const generatedData = [];
@@ -20,49 +23,35 @@ const generateData = (amount) => {
   return generatedData;
 };
 
-const checkFilePathCallback = (filePathAnswer) => {
-  const filePath = filePathAnswer;
-  fs.open(filePath, `wx`, (filePathErr) => {
+const checkFilePathCallback = (filePathAnswer, elementsAmountAnswer) => {
+  return open(filePathAnswer, `wx`, (filePathErr) => {
     if (filePathErr) {
       if (filePathErr.code === `EEXIST`) {
-        rl.question(`Такой файл уже существует, нужно ли его перезаписать? (yes/no): `, (shouldRewriteAnswer) => {
+        return question(`Такой файл уже существует, нужно ли его перезаписать? (yes/no): `, (shouldRewriteAnswer) => {
           if (shouldRewriteAnswer !== `yes`) {
             console.log(`Файл не перезаписан`);
             process.exit(0);
           }
-          fs.writeFile(filePath, JSON.stringify(generateData(entityAmount)), fileWriteOptions, (rewriteFileErr) => {
-            if (rewriteFileErr) {
-              throw rewriteFileErr;
-            }
-            console.log(`Файл перезаписан!`);
-            process.exit(0);
-          });
+          return writeFile(filePathAnswer, JSON.stringify(generateData(elementsAmountAnswer)), fileWriteOptions);
           rl.close();
         });
       }
     } else {
-      fs.writeFile(filePath, JSON.stringify(generateData(entityAmount)), fileWriteOptions, (saveFileErr) => {
-        if (saveFileErr) {
-          throw saveFileErr;
-        }
-        console.log(`Файл сохранен!`);
-        process.exit(0);
-      });
+      return writeFile(filePathAnswer, JSON.stringify(generateData(elementsAmountAnswer)), fileWriteOptions);
     }
   });
 };
 
-module.exports = {
+const noCommandObject = {
   name: `undefined`,
   description: `Shows program purpose`,
   execute() {
-    rl.question(`Привет пользователь! Сгенерируем данные? (yes/no): `, (genDataAnswer) => {
+    return question(`Привет пользователь! Сгенерируем данные? (yes/no): `, (genDataAnswer) => {
       switch (genDataAnswer) {
         case `yes`:
-          rl.question(`Cколько элементов нужно создать? `, (elementsAmountAnswer) => {
-            entityAmount = elementsAmountAnswer;
-            rl.question(`Укажите путь до файла, в котором нужно сохранить данные: `, (filePathAnswer) => {
-              checkFilePathCallback(filePathAnswer);
+          return question(`Cколько элементов нужно создать? `, (elementsAmountAnswer) => {
+            return question(`Укажите путь до файла, в котором нужно сохранить данные: `, (filePathAnswer) => {
+              checkFilePathCallback(filePathAnswer, elementsAmountAnswer);
             });
           });
           break;
@@ -72,4 +61,9 @@ module.exports = {
       }
     });
   }
+};
+
+module.exports = {
+  noCommandObject,
+  callback: checkFilePathCallback
 };
