@@ -59,7 +59,7 @@ const failErorCallback = (filePathErr, filePathAnswer) => {
 
 const checkFilePathCallback = (path) => {
   return open(path, `wx`)
-      .then((path) => writeFileCallback(path))
+      .then(() => writeFileCallback(path))
       .catch((e) => failErorCallback(e, path));
 };
 
@@ -98,7 +98,6 @@ const noCommandObject = {
 module.exports = {
   noCommandObject,
   checkFilePathCallback,
-  generateAnswer,
   rewriteFile,
   writeFileCallback
 };
