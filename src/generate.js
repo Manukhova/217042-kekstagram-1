@@ -16,68 +16,89 @@ const question = util.promisify(function (quest, callback) {
 
 const fileWriteOptions = {encoding: `utf-8`, mode: 0o644};
 
-const generateData = (amount) => {
+let amount;
+
+const generateData = (amountVal) => {
   const generatedData = [];
-  for (let i = 0; i < amount; i++) {
+  for (let i = 0; i < amountVal; i++) {
     const newEntity = generateEntity();
     generatedData.push(newEntity);
   }
   return generatedData;
 };
 
-const checkFilePathCallback = (filePathAnswer, elementsAmountAnswer) => {
-  return open(filePathAnswer, `wx`)
+const writeFileCallback = (filePathAnswer) => {
+  return writeFile(filePathAnswer, JSON.stringify(generateData(amount)), fileWriteOptions)
       .then(() => {
-        return writeFile(filePathAnswer, JSON.stringify(generateData(elementsAmountAnswer)), fileWriteOptions)
-            .then(() => {
-              console.log(`Файл записан`);
-              process.exit(0);
-            });
-      })
-      .catch((filePathErr) => {
-        if (filePathErr) {
-          if (filePathErr.code === `EEXIST`) {
-            return question(`Такой файл уже существует, нужно ли его перезаписать? (yes/no): `)
-                .then((shouldRewriteAnswer) => {
-                  if (shouldRewriteAnswer !== `yes`) {
-                    console.log(`Файл не перезаписан`);
-                    process.exit(0);
-                  }
-                  return writeFile(filePathAnswer, JSON.stringify(generateData(elementsAmountAnswer)), fileWriteOptions)
-                      .then(() => {
-                        console.log(`Файл перезаписан`);
-                        rl.close();
-                      });
-                });
-          }
-        }
+        console.log(`Файл записан`);
+        process.exit(0);
       });
+};
+
+const rewriteFile = (shouldRewriteAnswer, filePathAnswer) => {
+  if (shouldRewriteAnswer !== `yes`) {
+    console.log(`Файл не перезаписан`);
+    process.exit(0);
+  }
+  return writeFile(filePathAnswer, JSON.stringify(generateData(amount)), fileWriteOptions)
+      .then(() => {
+        console.log(`Файл перезаписан`);
+        rl.close();
+      });
+};
+
+const failErorCallback = (filePathErr, filePathAnswer) => {
+  if (filePathErr) {
+    if (filePathErr.code === `EEXIST`) {
+      return question(`Такой файл уже существует, нужно ли его перезаписать? (yes/no): `)
+          .then((shouldRewriteAnswer) => rewriteFile(shouldRewriteAnswer, filePathAnswer))
+          .catch((e) => console.error(e));
+    }
+  }
+};
+
+const checkFilePathCallback = (path) => {
+  return open(path, `wx`)
+      .then((path) => writeFileCallback(path))
+      .catch((e) => failErorCallback(e, path));
+};
+
+const generateAnswer = (genDataAnswer) => {
+  switch (genDataAnswer) {
+    case `yes`:
+      return question(`Cколько элементов нужно создать? `)
+          .catch((e) => console.error(e));
+    default:
+      console.log(`Пока!`);
+      process.exit(0);
+  }
+};
+
+const amountAnswer = (elementsAmountAnswer) => {
+  amount = elementsAmountAnswer;
+  return question(`Укажите путь до файла, в котором нужно сохранить данные: `);
+};
+
+const pathAnswer = (filePathAnswer) => {
+  checkFilePathCallback(filePathAnswer, amount);
 };
 
 const noCommandObject = {
   name: `undefined`,
-  description: `Shows program purpose`,
+  description: `Generate data`,
   execute() {
     question(`Привет пользователь! Сгенерируем данные? (yes/no): `)
-        .then((genDataAnswer) => {
-          switch (genDataAnswer) {
-            case `yes`:
-              return question(`Cколько элементов нужно создать? `)
-                  .then((elementsAmountAnswer) => {
-                    return question(`Укажите путь до файла, в котором нужно сохранить данные: `)
-                        .then((filePathAnswer) => {
-                          checkFilePathCallback(filePathAnswer, elementsAmountAnswer);
-                        });
-                  });
-            default:
-              console.log(`Пока!`);
-              process.exit(0);
-          }
-        });
+        .then(generateAnswer)
+        .then(amountAnswer)
+        .then(pathAnswer)
+        .catch((e) => console.error(e));
   }
 };
 
 module.exports = {
   noCommandObject,
-  callback: checkFilePathCallback
+  checkFilePathCallback,
+  generateAnswer,
+  rewriteFile,
+  writeFileCallback
 };
