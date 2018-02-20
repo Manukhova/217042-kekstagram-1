@@ -6,6 +6,7 @@ const fs = require(`fs`);
 const {promisify} = require(`util`);
 const access = promisify(fs.access);
 const unlink = promisify(fs.unlink);
+const stat = promisify(fs.stat);
 const assert = require(`assert`);
 
 describe(`Check path folder`, function () {
@@ -15,22 +16,30 @@ describe(`Check path folder`, function () {
       assert.fail(`Path ${tempFileName} should not be available`);
     }).catch((e) => assert.ok(e));
   });
-});
 
-describe(`Create new file`, function () {
-  it(`should create new file`, function () {
+  it(`should create new non empty file`, function () {
     const tempFileName = `${__dirname}/testfile.json`;
-    return writeFileCallback(tempFileName)
+    return writeFileCallback(tempFileName, 5)
         .then(() => access(tempFileName))
+        .then(() => stat(tempFileName))
+        .then((stats) => assert.ok(stats.size > 2))
         .then(() => unlink(tempFileName));
   });
-});
 
-describe(`Rewrite file`, function () {
   it(`should rewrite file`, function () {
     const tempFileName = `${__dirname}/testfile.json`;
     return rewriteFile(`yes`, tempFileName)
         .then(() => access(tempFileName))
         .then(() => unlink(tempFileName));
   });
+
+  it(`should create new file with empty array`, function () {
+    const tempFileName = `${__dirname}/testfile.json`;
+    return writeFileCallback(tempFileName, `five`)
+        .then(() => access(tempFileName))
+        .then(() => stat(tempFileName))
+        .then((stats) => assert.equal(stats.size, 2))
+        .then(() => unlink(tempFileName));
+  });
+
 });

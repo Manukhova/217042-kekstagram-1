@@ -1,6 +1,6 @@
 const version = require(`./src/version`);
 const help = require(`./src/help`);
-const generate = require(`./src/generate`).noCommandObject;
+const generate = require(`./src/generate`);
 const author = require(`./src/author`);
 const license = require(`./src/license`);
 const description = require(`./src/description`);

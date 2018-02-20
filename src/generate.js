@@ -10,13 +10,20 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-const question = util.promisify(function (quest, callback) {
-  rl.question(quest, callback.bind(null, null));
-});
+rl.question[util.promisify.custom] = (arg) => {
+  return new Promise((resolve) => {
+    rl.question(arg, resolve);
+  });
+};
+const question = util.promisify(rl.question);
 
 const fileWriteOptions = {encoding: `utf-8`, mode: 0o644};
 
-let amount;
+const state = {};
+const setState = (key, value) => {
+  state[key] = value;
+  return state;
+};
 
 const generateData = (amountVal) => {
   const generatedData = [];
@@ -27,63 +34,61 @@ const generateData = (amountVal) => {
   return generatedData;
 };
 
-const writeFileCallback = (filePathAnswer) => {
+const writeFileCallback = (filePathAnswer, amount) => {
   return writeFile(filePathAnswer, JSON.stringify(generateData(amount)), fileWriteOptions)
       .then(() => {
         console.log(`Файл записан`);
-        process.exit(0);
       });
 };
 
-const rewriteFile = (shouldRewriteAnswer, filePathAnswer) => {
+const rewriteFile = (shouldRewriteAnswer, filePathAnswer, amount) => {
   if (shouldRewriteAnswer !== `yes`) {
     console.log(`Файл не перезаписан`);
-    process.exit(0);
+    return false;
+  } else {
+    return writeFile(filePathAnswer, JSON.stringify(generateData(amount)), fileWriteOptions)
+        .then(() => {
+          console.log(`Файл перезаписан`);
+          rl.close();
+        });
   }
-  return writeFile(filePathAnswer, JSON.stringify(generateData(amount)), fileWriteOptions)
-      .then(() => {
-        console.log(`Файл перезаписан`);
-        rl.close();
-      });
 };
 
-const failErorCallback = (filePathErr, filePathAnswer) => {
-  if (filePathErr) {
-    if (filePathErr.code === `EEXIST`) {
-      return question(`Такой файл уже существует, нужно ли его перезаписать? (yes/no): `)
-          .then((shouldRewriteAnswer) => rewriteFile(shouldRewriteAnswer, filePathAnswer))
-          .catch((e) => console.error(e));
-    }
+const failErrorCallback = (filePathErr, path, amount) => {
+  if (filePathErr.code === `EEXIST`) {
+    return question(`Такой файл уже существует, нужно ли его перезаписать? (yes/no): `)
+        .then((shouldRewriteAnswer) =>
+          rewriteFile(shouldRewriteAnswer, path, amount));
   }
+  return false;
 };
 
 const checkFilePathCallback = (path) => {
   return open(path, `wx`)
-      .then(() => writeFileCallback(path))
-      .catch((e) => failErorCallback(e, path));
+      .then(() => writeFileCallback(path, state.amount))
+      .catch((e) => failErrorCallback(e, path, state.amount));
 };
 
 const generateAnswer = (genDataAnswer) => {
-  switch (genDataAnswer) {
-    case `yes`:
-      return question(`Cколько элементов нужно создать? `)
-          .catch((e) => console.error(e));
-    default:
-      console.log(`Пока!`);
-      process.exit(0);
+  genDataAnswer = genDataAnswer.trim();
+  if (genDataAnswer === `yes`) {
+    return question(`Cколько элементов нужно создать? `);
   }
+  console.log(`Пока!`);
+  process.exit();
+  return false;
 };
 
 const amountAnswer = (elementsAmountAnswer) => {
-  amount = elementsAmountAnswer;
+  setState(`amount`, elementsAmountAnswer);
   return question(`Укажите путь до файла, в котором нужно сохранить данные: `);
 };
 
 const pathAnswer = (filePathAnswer) => {
-  checkFilePathCallback(filePathAnswer, amount);
+  checkFilePathCallback(filePathAnswer);
 };
 
-const noCommandObject = {
+module.exports = {
   name: `undefined`,
   description: `Generate data`,
   execute() {
@@ -92,11 +97,7 @@ const noCommandObject = {
         .then(amountAnswer)
         .then(pathAnswer)
         .catch((e) => console.error(e));
-  }
-};
-
-module.exports = {
-  noCommandObject,
+  },
   checkFilePathCallback,
   rewriteFile,
   writeFileCallback
