@@ -54,19 +54,22 @@ const rewriteFile = (shouldRewriteAnswer, filePathAnswer, amount) => {
   }
 };
 
-const failErrorCallback = (filePathErr, path, amount) => {
+const failErrorCallback = (filePathErr) => {
   if (filePathErr.code === `EEXIST`) {
     return question(`Такой файл уже существует, нужно ли его перезаписать? (yes/no): `)
         .then((shouldRewriteAnswer) =>
-          rewriteFile(shouldRewriteAnswer, path, amount));
+          rewriteFile(shouldRewriteAnswer, state.path, state.amount));
+  }
+  if (filePathErr.message === `Cancel generate`) {
+    console.log(`Пока!`);
   }
   return false;
 };
 
 const checkFilePathCallback = (path) => {
+  setState(`path`, path);
   return open(path, `wx`)
-      .then(() => writeFileCallback(path, state.amount))
-      .catch((e) => failErrorCallback(e, path, state.amount));
+      .then(() => writeFileCallback(path, state.amount));
 };
 
 const generateAnswer = (genDataAnswer) => {
@@ -74,18 +77,12 @@ const generateAnswer = (genDataAnswer) => {
   if (genDataAnswer === `yes`) {
     return question(`Cколько элементов нужно создать? `);
   }
-  console.log(`Пока!`);
-  process.exit();
-  return false;
+  throw new Error(`Cancel generate`);
 };
 
 const amountAnswer = (elementsAmountAnswer) => {
   setState(`amount`, elementsAmountAnswer);
   return question(`Укажите путь до файла, в котором нужно сохранить данные: `);
-};
-
-const pathAnswer = (filePathAnswer) => {
-  checkFilePathCallback(filePathAnswer);
 };
 
 module.exports = {
@@ -95,8 +92,8 @@ module.exports = {
     question(`Привет пользователь! Сгенерируем данные? (yes/no): `)
         .then(generateAnswer)
         .then(amountAnswer)
-        .then(pathAnswer)
-        .catch((e) => console.error(e));
+        .then(checkFilePathCallback)
+        .catch(failErrorCallback);
   },
   checkFilePathCallback,
   rewriteFile,
