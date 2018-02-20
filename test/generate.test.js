@@ -9,15 +9,15 @@ const unlink = promisify(fs.unlink);
 const stat = promisify(fs.stat);
 const assert = require(`assert`);
 
-describe(`Check path folder`, function () {
-  it(`should fail on not existing folder`, function () {
+describe(`Check path folder`, () => {
+  it(`should fail on not existing folder`, () => {
     const tempFileName = `${__dirname}/folder/testfile.json`;
     return checkFilePathCallback(tempFileName).then(() => {
       assert.fail(`Path ${tempFileName} should not be available`);
     }).catch((e) => assert.ok(e));
   });
 
-  it(`should create new non empty file`, function () {
+  it(`should create new non empty file`, () => {
     const tempFileName = `${__dirname}/testfile.json`;
     return writeFileCallback(tempFileName, 5)
         .then(() => access(tempFileName))
@@ -26,14 +26,14 @@ describe(`Check path folder`, function () {
         .then(() => unlink(tempFileName));
   });
 
-  it(`should rewrite file`, function () {
+  it(`should rewrite file`, () => {
     const tempFileName = `${__dirname}/testfile.json`;
     return rewriteFile(`yes`, tempFileName)
         .then(() => access(tempFileName))
         .then(() => unlink(tempFileName));
   });
 
-  it(`should create new file with empty array`, function () {
+  it(`should create new file with empty array`, () => {
     const tempFileName = `${__dirname}/testfile.json`;
     return writeFileCallback(tempFileName, `five`)
         .then(() => access(tempFileName))
