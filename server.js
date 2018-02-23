@@ -39,16 +39,11 @@ const server = http.createServer((req, res) => {
     try {
       if (req.url === `/`) {
         absolutePath = __dirname + `/static/index.html`;
-
-        await stat(absolutePath);
-        await readFile(absolutePath, res);
-
       } else {
         absolutePath = __dirname + `/static` + req.url;
-
-        await stat(absolutePath);
-        await readFile(absolutePath, res);
       }
+      await stat(absolutePath);
+      await readFile(absolutePath, res);
     } catch (e) {
       console.log(e);
       res.writeHead(404, `Not Found`);
