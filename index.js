@@ -7,23 +7,9 @@ const description = require(`./src/description`);
 const byDefault = require(`./src/default`);
 const server = require(`./server`);
 
-const fs = require(`fs`);
-const readline = require(`readline`);
-const {promisify} = require(`util`);
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
-rl.question[promisify.custom] = (arg) => {
-  return new Promise((resolve) => {
-    rl.question(arg, resolve);
-  });
-};
-const question = promisify(rl.question);
-
 const args = process.argv.slice(2);
+
+const PORT_ADRESS = 3000;
 
 let map = new Map();
 
@@ -35,11 +21,9 @@ map
     .set(`--${description.name}`, description)
     .set(void 0, generate);
 
-if(args[0] === `--server`) {
-  question(`Port number: `)
-  .then((port) => {
-    server.run(port);
-  });
+if (args[0] === `--server`) {
+  const port = args[1] ? args[1] : PORT_ADRESS;
+  server.run(port);
 } else if (map.has(args[0])) {
   map.get(args[0]).execute();
 } else {
