@@ -6,6 +6,8 @@ const {promisify} = require(`util`);
 
 const readfile = promisify(fs.readFile);
 
+const hostname = `127.0.0.1`;
+
 const types = {
   '.css': `text/css`,
   '.html': `text/html; charset=UTF-8`,
@@ -18,7 +20,6 @@ const readFile = async (absolutePath, res) => {
 
   const data = await readfile(absolutePath);
 
-  const headers = {};
   const contentType = types[path.extname(absolutePath)];
 
   if (contentType) {
@@ -50,4 +51,13 @@ const server = http.createServer((req, res) => {
   });
 });
 
-module.exports = server;
+module.exports = {
+  run(port) {
+    server.listen(port, hostname, (e) => {
+      if (e) {
+        return console.error(e);
+      }
+      return console.log(`Server runs at ${hostname}:${port}`);
+    });
+  }
+};
