@@ -5,6 +5,7 @@ const author = require(`./src/author`);
 const license = require(`./src/license`);
 const description = require(`./src/description`);
 const byDefault = require(`./src/default`);
+const serverCommand = require(`./src/serverCommand`);
 
 const args = process.argv.slice(2);
 
@@ -16,6 +17,7 @@ map
     .set(`--${author.name}`, author)
     .set(`--${license.name}`, license)
     .set(`--${description.name}`, description)
+    .set(`--${serverCommand.name}`, serverCommand)
     .set(void 0, generate);
 
 if (map.has(args[0])) {
