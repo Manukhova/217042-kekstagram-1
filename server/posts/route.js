@@ -3,8 +3,8 @@ const bodyParser = require(`body-parser`);
 const multer = require(`multer`);
 
 const postSchema = require(`./validation`);
-const {validateSchema} = require(`./validator`);
-const generateData = require(`../src/generate`).generateData;
+const {validateSchema} = require(`../util/validator`);
+const generateData = require(`../../src/generate`).generateData;
 
 const async = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
@@ -14,9 +14,9 @@ postsRouter.use(bodyParser.json());
 
 const upload = multer({storage: multer.memoryStorage()});
 
-const posts = generateData(25);
+const posts = generateData(50);
 
-const toPage = (data, skip = 0, limit = 20) => {
+const toPage = (data, skip = 0, limit = 50) => {
   return {
     data: data.slice(skip, skip + limit),
     skip,
@@ -28,7 +28,7 @@ const toPage = (data, skip = 0, limit = 20) => {
 postsRouter.get(``, async(async (req, res) => res.send(toPage(posts))));
 
 postsRouter.get(`/:date`, (req, res) => {
-  const date = req.params[`date`].split(`:`)[1];
+  const date = req.params[`date`];
   const post = posts.find((it) => it.date.toString() === date);
   if (!post) {
     res.status(404).end();

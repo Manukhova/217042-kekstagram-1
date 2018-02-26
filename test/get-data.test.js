@@ -12,8 +12,8 @@ describe(`GET api/posts`, function () {
         .expect(`Content-Type`, /json/)
         .then((response) => {
           const page = response.body;
-          assert.equal(page.total, 25);
-          assert.equal(page.data.length, 20);
+          assert.equal(page.total, 50);
+          assert.equal(page.data.length, 50);
           assert.equal(Object.keys(page.data[0]).length, 8);
         });
   });

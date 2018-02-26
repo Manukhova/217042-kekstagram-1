@@ -1,5 +1,5 @@
 const express = require(`express`);
-const postsRouter = require(`./route`);
+const postsRouter = require(`./posts/route`);
 
 const app = express();
 app.use(express.static(`static`));

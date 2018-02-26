@@ -33,20 +33,20 @@ describe(`POST /api/posts`, function () {
         field(`likes`, 152).
         field(`scale`, 78).
         field(`url`, `https://picsum.photos/600/?random`).
-        attach(`filename`, `test/fixtures/image.png`).
+        field(`filename`, `test/fixtures/image.png`).
         expect(200, {
           effect: `chrome`,
           likes: 152,
           scale: 78,
-          filename: `test/fixtures/image.png`,
-          url: `https://picsum.photos/600/?random`
+          url: `https://picsum.photos/600/?random`,
+          filename: `test/fixtures/image.png`
         });
   });
 
   it(`should fail if scale is invalid`, () => {
     return request(app).post(`/api/posts`).
-        field(`scale`, 15000).
         field(`effect`, `sepia`).
+        field(`scale`, 15000).
         field(`likes`, 400).
         attach(`filename`, `test/fixtures/image.png`).
         expect(400, [{

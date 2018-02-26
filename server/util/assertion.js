@@ -13,7 +13,7 @@ module.exports = {
         const assertion = this.oneOf(choices);
         return options.every((it) => assertion.assert(it));
       },
-      message: `should be one of [${choices}]`
+      message: `should be any of [${choices}]`
     };
   },
   inRange(from, to) {
@@ -35,6 +35,7 @@ module.exports = {
   isImage() {
     return {
       assert(image) {
+        console.log(image);
         return image.mimetype.startsWith(`image/`);
       },
       message: `should be an image`
@@ -50,8 +51,10 @@ module.exports = {
   },
   isHashtagArr() {
     return {
-      assert() {
-        return true;
+      assert(arr) {
+        arr.forEach((text) => {
+          return text.length >= 1 && text.length <= 20;
+        });
       },
       message: `should be a hashtag array`
     };

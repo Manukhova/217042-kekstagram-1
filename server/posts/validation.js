@@ -1,4 +1,4 @@
-const {inRange, textRange, isImage, isArr, oneOf} = require(`./assertion`);
+const {inRange, textRange, isImage, isArr, isHashtagArr, oneOf} = require(`../util/assertion`);
 
 const MAX_SCALE_LENGTH = 100;
 const MIN_SCALE_LENGTH = 0;
@@ -32,6 +32,9 @@ const schema = {
   },
   'description': {
     required: false,
+    converter(val) {
+      return val.trim();
+    },
     assertions: [
       textRange(MIN_DECS_LENGTH, MAX_DESC_LENGTH)
     ]
@@ -39,7 +42,8 @@ const schema = {
   'hashtags': {
     required: false,
     assertions: [
-      isArr()
+      isArr(),
+      isHashtagArr()
     ]
   },
   'effect': requiredEffectField(effectList)
