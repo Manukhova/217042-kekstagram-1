@@ -6,15 +6,15 @@ const MAX_RANDOM_STRING_LENGTH = 19;
 
 const MAX_RANDOM_ARRAY_LENGTH = 5;
 
-const randomString = (word, constraint, hasSpace) => {
+const randomString = (word, constraint, hasSpace, j) => {
   let alphabet = hasSpace ?
     `абвгдеёжзийклмнопрстуфхцчшщъыьэюя   ` : `абвгдеёжзийклмнопрстуфхцчшщъыьэюя`;
   let randomWord = word || ``;
 
-  for (let i = 0; i < Math.floor(Math.random() * constraint); i++) {
+  for (let i = 0; i < Math.floor(Math.random() * constraint - 1); i++) {
     randomWord += alphabet[Math.round(Math.random() * (alphabet.length - 1))];
   }
-  randomWord += +new Date();
+  randomWord += j;
   return randomWord;
 };
 
@@ -22,7 +22,7 @@ const generateRandomStringArray = (lengthConstraint, wordConstraint, word, hasSp
   let randomStringArray = [];
 
   for (let i = 0; i < lengthConstraint; i++) {
-    randomStringArray.push(randomString(word, wordConstraint, hasSpace));
+    randomStringArray.push(randomString(word, wordConstraint, hasSpace, i));
   }
   return randomStringArray;
 };

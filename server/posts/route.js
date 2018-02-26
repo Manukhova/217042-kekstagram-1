@@ -39,9 +39,7 @@ postsRouter.get(`/:date`, (req, res) => {
 
 postsRouter.post(``, upload.single(`filename`), (req, res) => {
   const data = req.body;
-
   data.filename = req.file || data.filename;
-  // console.log(data);
 
   const errors = validateSchema(data, postSchema);
 
@@ -57,7 +55,6 @@ postsRouter.use((exception, req, res, next) => {
 
   if (exception instanceof ValidationError) {
     data = exception.errors;
-    console.log(data);
   }
   res.status(400).send(data);
   next();
