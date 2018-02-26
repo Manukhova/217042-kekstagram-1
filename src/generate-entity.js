@@ -14,6 +14,7 @@ const randomString = (word, constraint, hasSpace) => {
   for (let i = 0; i < Math.floor(Math.random() * constraint); i++) {
     randomWord += alphabet[Math.round(Math.random() * (alphabet.length - 1))];
   }
+  randomWord += +new Date();
   return randomWord;
 };
 

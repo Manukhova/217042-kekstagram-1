@@ -35,7 +35,7 @@ module.exports = {
   isImage() {
     return {
       assert(image) {
-        console.log(image);
+        console.log(image, `IMAGE`);
         return image.mimetype.startsWith(`image/`);
       },
       message: `should be an image`
