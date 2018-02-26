@@ -95,6 +95,7 @@ module.exports = {
         .then(checkFilePathCallback)
         .catch(failErrorCallback);
   },
+  generateData,
   checkFilePathCallback,
   rewriteFile,
   writeFileCallback

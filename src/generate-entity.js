@@ -14,6 +14,7 @@ const randomString = (word, constraint, hasSpace) => {
   for (let i = 0; i < Math.floor(Math.random() * constraint); i++) {
     randomWord += alphabet[Math.round(Math.random() * (alphabet.length - 1))];
   }
+  randomWord += +new Date();
   return randomWord;
 };
 
@@ -26,6 +27,9 @@ const generateRandomStringArray = (lengthConstraint, wordConstraint, word, hasSp
   return randomStringArray;
 };
 
+const firstJan17 = 1483218000000;
+const now = new Date().getTime();
+
 const generateEntity = () => {
   return {
     url: `https://picsum.photos/600/?random`,
@@ -35,6 +39,7 @@ const generateEntity = () => {
     description: `Данная функция генерирует данные`,
     likes: Math.ceil(Math.random() * 1000),
     comments: generateRandomStringArray(10, 140, ``, true),
+    date: Math.floor(Math.random() * now) + firstJan17
   };
 };
 

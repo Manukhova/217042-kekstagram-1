@@ -1,4 +1,4 @@
-const server = require(`../server`);
+const server = require(`../server/server`);
 
 const PORT_ADRESS = 3000;
 const args = process.argv.slice(2);
