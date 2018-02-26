@@ -1,7 +1,7 @@
 const {Router} = require(`express`);
 const bodyParser = require(`body-parser`);
 const multer = require(`multer`);
-
+const ValidationError = require(`../util/error`);
 const postSchema = require(`./validation`);
 const {validateSchema} = require(`../util/validator`);
 const generateData = require(`../../src/generate`).generateData;
@@ -39,18 +39,25 @@ postsRouter.get(`/:date`, (req, res) => {
 
 postsRouter.post(``, upload.single(`filename`), (req, res) => {
   const data = req.body;
+
+  data.filename = req.file;
+  // console.log(data);
+
   const errors = validateSchema(data, postSchema);
-  console.log(errors);
+
   if (errors.length > 0) {
-    throw new Error(errors);
+    throw new ValidationError(errors);
   }
+  delete data.filename;
   res.send(data);
 });
 
 postsRouter.use((exception, req, res, next) => {
   let data = exception;
-  if (exception instanceof Error) {
+
+  if (exception instanceof ValidationError) {
     data = exception.errors;
+    console.log(data);
   }
   res.status(400).send(data);
   next();

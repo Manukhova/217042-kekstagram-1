@@ -52,9 +52,13 @@ module.exports = {
   isHashtagArr() {
     return {
       assert(arr) {
+        let isTrue = true;
         arr.forEach((text) => {
-          return text.length >= 1 && text.length <= 20;
+          if (!(text.length >= 1 && text.length <= 20)) {
+            isTrue = false;
+          }
         });
+        return isTrue;
       },
       message: `should be a hashtag array`
     };
