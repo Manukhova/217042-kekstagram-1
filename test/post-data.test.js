@@ -1,5 +1,8 @@
 const request = require(`supertest`);
-const {app} = require(`../server/server`);
+const mockPostsRouter = require(`./mock-posts-router`);
+const app = require(`express`)();
+
+app.use(`/api/posts`, mockPostsRouter);
 
 describe(`POST /api/posts`, function () {
 
@@ -24,7 +27,10 @@ describe(`POST /api/posts`, function () {
           hashtags: [`#ёз`, `#`, `#п`, `#ёйяъфт`, `#сзуяё`],
           likes: 582,
           scale: 40,
-          url: `https://picsum.photos/600/?random`
+          url: `https://picsum.photos/600/?random`,
+          filename: {
+            mimetype: `image/png`
+          }
         });
   });
 
@@ -39,7 +45,10 @@ describe(`POST /api/posts`, function () {
           effect: `chrome`,
           likes: 152,
           scale: 78,
-          url: `https://picsum.photos/600/?random`
+          url: `https://picsum.photos/600/?random`,
+          filename: {
+            mimetype: `image/png`
+          }
         });
   });
 
