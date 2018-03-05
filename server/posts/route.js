@@ -28,7 +28,8 @@ const toPage = async (data, skip = 0, limit = 50) => {
 postsRouter.get(``, async(async (req, res) => res.send(await toPage(await postsRouter.postStore.getAllPosts()))));
 
 postsRouter.get(`/:date`, async(async (req, res) => {
-  const date = req.params[`date`];
+  const date = Number(req.params[`date`]);
+
   const post = await postsRouter.postStore.getPost(date);
   if (!post) {
     throw new NotFoundError(`Post with date "${date}" not found`);
@@ -38,7 +39,7 @@ postsRouter.get(`/:date`, async(async (req, res) => {
 }));
 
 postsRouter.get(`/:date/image`, async(async (req, res) => {
-  const date = req.params[`date`];
+  const date = Number(req.params[`date`]);
 
   const post = await postsRouter.postStore.getPost(date);
 
@@ -46,13 +47,13 @@ postsRouter.get(`/:date/image`, async(async (req, res) => {
     throw new NotFoundError(`Post with date "${date}" not found`);
   }
 
-  const image = post.image;
+  const image = post.filename;
 
   if (!image) {
     throw new NotFoundError(`Post with date "${date}" didn't upload image`);
   }
 
-  const {info, stream} = await postsRouter.postStore.get(image.path);
+  const {info, stream} = await postsRouter.imageStore.get(image.path);
 
   if (!info) {
     throw new NotFoundError(`File was not found`);
@@ -66,9 +67,13 @@ postsRouter.get(`/:date/image`, async(async (req, res) => {
 
 postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   const data = req.body;
-  const image = req.file;
-
   const image = req.file || data.filename;
+
+  data.date = data.date || +new Date();
+
+  if (image) {
+    data.filename = image;
+  }
 
   const errors = validateSchema(data, postSchema);
 
@@ -85,11 +90,12 @@ postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
     data.filename = imageInfo;
   }
 
-  await postsRouter.postsStore.save(data);
+  await postsRouter.postStore.save(data);
   dataRenderer.renderDataSuccess(req, res, data);
 }));
 
 postsRouter.use((exception, req, res, next) => {
+  console.log(exception);
   dataRenderer.renderException(req, res, exception);
   next();
 });

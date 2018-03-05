@@ -58,7 +58,7 @@ module.exports = {
   renderDataSuccess: (req, res, data) => render(req, res, data, true),
   renderDataError: (req, res, data) => render(req, res, data, false),
   renderException: (req, res, exception) => {
-    let data = exception;
+    let data = {error: exception.toString()};
     if (exception instanceof ValidationError) {
       data = exception.errors;
     }

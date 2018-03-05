@@ -4,7 +4,7 @@ const setupCollection = async () => {
   const dBase = await db;
 
   const collection = dBase.collection(`posts`);
-  collection.createIndex({username: -1}, {unique: true});
+  collection.createIndex({date: -1}, {unique: true});
   return collection;
 };
 
