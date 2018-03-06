@@ -1,7 +1,7 @@
 const createPostsRouter = require(`../server/posts/route`);
 const generateData = require(`../src/generate`).generateData;
 
-const posts = generateData(50);
+const posts = generateData(10);
 
 class Cursor {
   constructor(data) {
@@ -30,7 +30,7 @@ class MockPostStore {
   }
 
   async getPost(date) {
-    return posts.find((it) => it.date.toString() === date);
+    return posts.find((it) => it.date === date);
   }
 
   async getAllPosts() {

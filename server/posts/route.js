@@ -69,7 +69,7 @@ postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   const data = req.body;
   const image = req.file || data.filename;
 
-  data.date = data.date || +new Date();
+  data.date = data.date || Number(new Date());
 
   if (image) {
     data.filename = image;
@@ -95,7 +95,6 @@ postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
 }));
 
 postsRouter.use((exception, req, res, next) => {
-  console.log(exception);
   dataRenderer.renderException(req, res, exception);
   next();
 });
