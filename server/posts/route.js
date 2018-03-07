@@ -1,10 +1,12 @@
 const {Router} = require(`express`);
+const {validateSchema} = require(`../util/validator`);
+const postSchema = require(`./validation`);
+const dataRenderer = require(`../util/data-renderer`);
+const ValidationError = require(`../util/error`);
+const NotFoundError = require(`../util/not-found-error`);
+const createStreamFromBuffer = require(`../util/buffer-to-stream`);
 const bodyParser = require(`body-parser`);
 const multer = require(`multer`);
-const ValidationError = require(`../util/error`);
-const postSchema = require(`./validation`);
-const {validateSchema} = require(`../util/validator`);
-const generateData = require(`../../src/generate`).generateData;
 
 const async = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
@@ -14,50 +16,91 @@ postsRouter.use(bodyParser.json());
 
 const upload = multer({storage: multer.memoryStorage()});
 
-const posts = generateData(50);
-
-const toPage = (data, skip = 0, limit = 50) => {
+const toPage = async (data, skip = 0, limit = 50) => {
   return {
-    data: data.slice(skip, skip + limit),
+    data: await (data.skip(skip).limit(limit).toArray()),
     skip,
     limit,
-    total: data.length
+    total: await data.count()
   };
 };
 
-postsRouter.get(``, async(async (req, res) => res.send(toPage(posts))));
+postsRouter.get(``, async(async (req, res) => res.send(await toPage(await postsRouter.postStore.getAllPosts()))));
 
-postsRouter.get(`/:date`, (req, res) => {
-  const date = req.params[`date`];
-  const post = posts.find((it) => it.date.toString() === date);
+postsRouter.get(`/:date`, async(async (req, res) => {
+  const date = Number(req.params[`date`]);
+
+  const post = await postsRouter.postStore.getPost(date);
   if (!post) {
-    res.status(404).end();
+    throw new NotFoundError(`Post with date "${date}" not found`);
   } else {
     res.send(post);
   }
-});
+}));
 
-postsRouter.post(``, upload.single(`filename`), (req, res) => {
+postsRouter.get(`/:date/image`, async(async (req, res) => {
+  const date = Number(req.params[`date`]);
+
+  const post = await postsRouter.postStore.getPost(date);
+
+  if (!post) {
+    throw new NotFoundError(`Post with date "${date}" not found`);
+  }
+
+  const image = post.filename;
+
+  if (!image) {
+    throw new NotFoundError(`Post with date "${date}" didn't upload image`);
+  }
+
+  const {info, stream} = await postsRouter.imageStore.get(image.path);
+
+  if (!info) {
+    throw new NotFoundError(`File was not found`);
+  }
+
+  res.set(`content-type`, image.mimetype);
+  res.set(`content-length`, info.length);
+  res.status(200);
+  stream.pipe(res);
+}));
+
+postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   const data = req.body;
-  data.filename = req.file || data.filename;
+  const image = req.file || data.filename;
+
+  data.date = data.date || Number(new Date());
+
+  if (image) {
+    data.filename = image;
+  }
 
   const errors = validateSchema(data, postSchema);
 
   if (errors.length > 0) {
     throw new ValidationError(errors);
   }
-  delete data.filename;
-  res.send(data);
-});
+
+  if (image) {
+    const imageInfo = {
+      path: `/api/posts/${data.date}/image`,
+      mimetype: image.mimetype
+    };
+    await postsRouter.imageStore.save(imageInfo.path, createStreamFromBuffer(image.buffer));
+    data.filename = imageInfo;
+  }
+
+  await postsRouter.postStore.save(data);
+  dataRenderer.renderDataSuccess(req, res, data);
+}));
 
 postsRouter.use((exception, req, res, next) => {
-  let data = exception;
-
-  if (exception instanceof ValidationError) {
-    data = exception.errors;
-  }
-  res.status(400).send(data);
+  dataRenderer.renderException(req, res, exception);
   next();
 });
 
-module.exports = postsRouter;
+module.exports = (postStore, imageStore) => {
+  postsRouter.postStore = postStore;
+  postsRouter.imageStore = imageStore;
+  return postsRouter;
+};

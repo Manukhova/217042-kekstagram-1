@@ -1,10 +1,13 @@
 const request = require(`supertest`);
 const assert = require(`assert`);
-const {app} = require(`../server/server`);
+const mockPostsRouter = require(`./mock-posts-router`);
+const app = require(`express`)();
+
+app.use(`/api/posts`, mockPostsRouter);
 
 let date;
 
-describe(`GET api/posts`, function () {
+describe(`GET /api/posts`, function () {
 
   it(`respond with json`, () => {
     return request(app)
@@ -14,9 +17,9 @@ describe(`GET api/posts`, function () {
         .expect(`Content-Type`, /json/)
         .then((response) => {
           const page = response.body;
-          date = page.data[5].date;
-          assert.equal(page.total, 50);
-          assert.equal(page.data.length, 50);
+          date = page.data[0].date;
+          assert.equal(page.total, 10);
+          assert.equal(page.data.length, 10);
           assert.equal(Object.keys(page.data[0]).length, 8);
         });
   });

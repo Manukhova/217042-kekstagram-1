@@ -1,5 +1,8 @@
 const request = require(`supertest`);
-const {app} = require(`../server/server`);
+const mockPostsRouter = require(`./mock-posts-router`);
+const app = require(`express`)();
+
+app.use(`/api/posts`, mockPostsRouter);
 
 describe(`POST /api/posts`, function () {
 
@@ -14,6 +17,7 @@ describe(`POST /api/posts`, function () {
           scale: 40,
           url: `https://picsum.photos/600/?random`,
           filename: {
+            path: `/api/posts/1927170795198/image`,
             mimetype: `image/png`
           }
         }).
@@ -24,7 +28,11 @@ describe(`POST /api/posts`, function () {
           hashtags: [`#ёз`, `#`, `#п`, `#ёйяъфт`, `#сзуяё`],
           likes: 582,
           scale: 40,
-          url: `https://picsum.photos/600/?random`
+          url: `https://picsum.photos/600/?random`,
+          filename: {
+            path: `/api/posts/1927170795198/image`,
+            mimetype: `image/png`
+          }
         });
   });
 
@@ -32,14 +40,20 @@ describe(`POST /api/posts`, function () {
     return request(app).post(`/api/posts`).
         field(`effect`, `chrome`).
         field(`likes`, 152).
+        field(`date`, 1927170795198).
         field(`scale`, 78).
         field(`url`, `https://picsum.photos/600/?random`).
         attach(`filename`, `test/fixtures/image.png`).
         expect(200, {
           effect: `chrome`,
-          likes: 152,
-          scale: 78,
-          url: `https://picsum.photos/600/?random`
+          likes: `152`,
+          date: 1927170795198,
+          scale: `78`,
+          url: `https://picsum.photos/600/?random`,
+          filename: {
+            path: `/api/posts/1927170795198/image`,
+            mimetype: `image/png`
+          }
         });
   });
 
