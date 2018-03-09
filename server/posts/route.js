@@ -14,6 +14,12 @@ const postsRouter = new Router();
 
 postsRouter.use(bodyParser.json());
 
+postsRouter.use((req, res, next) => {
+  res.header(`Access-Control-Allow-Origin`, `*`);
+  res.header(`Access-Control-Allow-Headers`, `Origin, X-Requested-With, Content-Type, Accept`);
+  next();
+});
+
 const upload = multer({storage: multer.memoryStorage()});
 
 const toPage = async (data, skip = 0, limit = 50) => {

@@ -7,6 +7,8 @@ const description = require(`./src/description`);
 const byDefault = require(`./src/default`);
 const serverCommand = require(`./src/serverCommand`);
 
+require(`dotenv`).config();
+
 const args = process.argv.slice(2);
 
 let map = new Map();
