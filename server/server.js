@@ -17,7 +17,7 @@ module.exports = {
   run() {
     app.listen(PORT, HOSTNAME, (e) => {
       if (e) {
-        return logger.error(e);
+        logger.error(`Server start error`, e);
       }
       return logger.info(`Server runs at http://${HOSTNAME}:${PORT}`);
     });

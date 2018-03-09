@@ -7,6 +7,7 @@ const NotFoundError = require(`../util/not-found-error`);
 const createStreamFromBuffer = require(`../util/buffer-to-stream`);
 const bodyParser = require(`body-parser`);
 const multer = require(`multer`);
+const logger = require(`../logger`);
 
 const async = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
@@ -81,6 +82,7 @@ postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
     data.filename = image;
   }
 
+  logger.info(`Received data from user: `, data);
   const errors = validateSchema(data, postSchema);
 
   if (errors.length > 0) {
