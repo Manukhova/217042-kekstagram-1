@@ -77,12 +77,12 @@ postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   const image = req.file || data.filename;
 
   data.date = data.date || Number(new Date());
+  logger.info(`Received data from user: `, data);
 
   if (image) {
     data.filename = image;
   }
 
-  logger.info(`Received data from user: `, data);
   const errors = validateSchema(data, postSchema);
 
   if (errors.length > 0) {
