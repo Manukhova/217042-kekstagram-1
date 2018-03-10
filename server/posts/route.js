@@ -7,12 +7,19 @@ const NotFoundError = require(`../util/not-found-error`);
 const createStreamFromBuffer = require(`../util/buffer-to-stream`);
 const bodyParser = require(`body-parser`);
 const multer = require(`multer`);
+const logger = require(`../logger`);
 
 const async = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
 const postsRouter = new Router();
 
 postsRouter.use(bodyParser.json());
+
+postsRouter.use((req, res, next) => {
+  res.header(`Access-Control-Allow-Origin`, `*`);
+  res.header(`Access-Control-Allow-Headers`, `Origin, X-Requested-With, Content-Type, Accept`);
+  next();
+});
 
 const upload = multer({storage: multer.memoryStorage()});
 
@@ -70,6 +77,7 @@ postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   const image = req.file || data.filename;
 
   data.date = data.date || Number(new Date());
+  logger.info(`Received data from user: `, data);
 
   if (image) {
     data.filename = image;
