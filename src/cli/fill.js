@@ -15,7 +15,8 @@ module.exports = {
   name: `fill`,
   description: `Fills database with test data`,
   execute() {
-    loadData().catch((e) => logger.error(`Failed to load test data`, e));
-    console.log(`База данных заполнена тестовыми данными.`);
+    loadData()
+    .then(logger.info(`База данных заполнена тестовыми данными.`))
+    .catch((e) => logger.error(`Failed to load test data`, e));
   }
 };
