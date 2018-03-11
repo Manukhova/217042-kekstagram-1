@@ -6,6 +6,7 @@ const license = require(`./cli/license`);
 const description = require(`./cli/description`);
 const byDefault = require(`./cli/default`);
 const serverCommand = require(`./cli/server-command`);
+const fill = require(`./cli/fill`);
 
 const args = process.argv.slice(2);
 
@@ -18,6 +19,7 @@ map
     .set(`--${license.name}`, license)
     .set(`--${description.name}`, description)
     .set(`--${serverCommand.name}`, serverCommand)
+    .set(`--${fill.name}`, fill)
     .set(void 0, generate);
 
 if (map.has(args[0])) {

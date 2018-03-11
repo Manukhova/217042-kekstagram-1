@@ -75,7 +75,8 @@ postsRouter.get(`/:date/image`, async(async (req, res) => {
 postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   const data = req.body;
   const image = req.file || data.filename;
-
+  data.likes = Number(data.likes);
+  data.scale = Number(data.scale);
   data.date = data.date || Number(new Date());
   logger.info(`Received data from user: `, data);
 

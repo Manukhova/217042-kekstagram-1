@@ -1,6 +1,7 @@
 const util = require(`util`);
 const {MongoError} = require(`mongodb`);
 const ValidationError = require(`../error/validation-error`);
+const logger = require(`../logger`);
 
 const SUCCESS_CODE = 200;
 const BAD_DATA_CODE = 400;
@@ -73,6 +74,13 @@ module.exports = {
           data.code = 501;
           data.errorMessage = exception.message;
       }
+    } else {
+      logger.error(exception);
+      data = {
+        code: 500,
+        message: `Internal Error`,
+        errorMessage: `Server has fallen into unrecoverable problem.`
+      };
     }
     render(req, res, data, false);
   }
