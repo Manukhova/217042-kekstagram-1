@@ -1,5 +1,5 @@
 const {MongoClient} = require(`mongodb`);
-const logger = require(`../server/logger`);
+const logger = require(`../../server/logger`);
 
 const url = process.env.MONGO_URL || `mongodb://localhost:27017`;
 
