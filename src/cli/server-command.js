@@ -1,8 +1,7 @@
 const server = require(`../../server/server`);
 
-const PORT_ADRESS = 3000;
 const args = process.argv.slice(2);
-const port = args[1] ? args[1] : PORT_ADRESS;
+const port = args[1];
 
 module.exports = {
   name: `server`,

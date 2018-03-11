@@ -14,7 +14,7 @@ const HOSTNAME = process.env.SERVER_HOST || `localhost`;
 
 module.exports = {
   run(port) {
-    const PORT = parseInt(process.env.SERVER_PORT, 10) || port || 3000;
+    const PORT = Number(process.env.SERVER_PORT) || port || 3000;
     app.listen(PORT, HOSTNAME, (e) => {
       if (e) {
         logger.error(`Server start error`, e);
