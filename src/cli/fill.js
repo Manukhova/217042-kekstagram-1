@@ -16,7 +16,7 @@ module.exports = {
   description: `Fills database with test data`,
   execute() {
     loadData()
-    .then(logger.info(`База данных заполнена тестовыми данными.`))
-    .catch((e) => logger.error(`Failed to load test data`, e));
+        .then(logger.info(`База данных заполнена тестовыми данными.`))
+        .catch((e) => logger.error(`Failed to load test data`, e));
   }
 };
