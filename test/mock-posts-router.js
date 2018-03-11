@@ -1,5 +1,5 @@
 const createPostsRouter = require(`../server/posts/route`);
-const generateData = require(`../src/generate`).generateData;
+const generateData = require(`../src/cli/generate`).generateData;
 
 const posts = generateData(10);
 

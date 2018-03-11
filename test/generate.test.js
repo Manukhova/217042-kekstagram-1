@@ -1,6 +1,6 @@
-const checkFilePathCallback = require(`../src/generate`).checkFilePathCallback;
-const writeFileCallback = require(`../src/generate`).writeFileCallback;
-const rewriteFile = require(`../src/generate`).rewriteFile;
+const checkFilePathCallback = require(`../src/cli/generate`).checkFilePathCallback;
+const writeFileCallback = require(`../src/cli/generate`).writeFileCallback;
+const rewriteFile = require(`../src/cli/generate`).rewriteFile;
 
 const fs = require(`fs`);
 const {promisify} = require(`util`);

@@ -11,10 +11,10 @@ app.use(express.static(`static`));
 app.use(`/api/posts`, postsRouter);
 
 const HOSTNAME = process.env.SERVER_HOST || `localhost`;
-const PORT = parseInt(process.env.SERVER_PORT, 10) || 3000;
 
 module.exports = {
-  run() {
+  run(port) {
+    const PORT = Number(process.env.SERVER_PORT) || port || 3000;
     app.listen(PORT, HOSTNAME, (e) => {
       if (e) {
         logger.error(`Server start error`, e);

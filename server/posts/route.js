@@ -2,8 +2,8 @@ const {Router} = require(`express`);
 const {validateSchema} = require(`../util/validator`);
 const postSchema = require(`./validation`);
 const dataRenderer = require(`../util/data-renderer`);
-const ValidationError = require(`../util/error`);
-const NotFoundError = require(`../util/not-found-error`);
+const ValidationError = require(`../error/validation-error`);
+const NotFoundError = require(`../error/not-found-error`);
 const createStreamFromBuffer = require(`../util/buffer-to-stream`);
 const bodyParser = require(`body-parser`);
 const multer = require(`multer`);
@@ -75,7 +75,8 @@ postsRouter.get(`/:date/image`, async(async (req, res) => {
 postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   const data = req.body;
   const image = req.file || data.filename;
-
+  data.likes = Number(data.likes);
+  data.scale = Number(data.scale);
   data.date = data.date || Number(new Date());
   logger.info(`Received data from user: `, data);
 
