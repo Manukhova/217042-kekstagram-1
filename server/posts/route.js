@@ -36,8 +36,8 @@ const toPage = async (data, skip, limit) => {
 };
 
 postsRouter.get(``, async(async (req, res) => {
-  let limit = req.query.limit ? Number(req.query.limit) : DEFAULT_LIMIT;
-  let skip = req.query.skip ? Number(req.query.skip) : DEFAULT_SKIP;
+  let limit = Number(req.query.limit) || DEFAULT_LIMIT;
+  let skip = Number(req.query.skip) || DEFAULT_SKIP;
 
   res.send(await toPage(await postsRouter.postStore.getAllPosts(), skip, limit));
 }));
