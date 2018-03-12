@@ -9,6 +9,9 @@ const bodyParser = require(`body-parser`);
 const multer = require(`multer`);
 const logger = require(`../logger`);
 
+const DEFAULT_SKIP = 0;
+const DEFAULT_LIMIT = 50;
+
 const async = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
 const postsRouter = new Router();
@@ -23,7 +26,7 @@ postsRouter.use((req, res, next) => {
 
 const upload = multer({storage: multer.memoryStorage()});
 
-const toPage = async (data, skip = 0, limit = 50) => {
+const toPage = async (data, skip, limit) => {
   return {
     data: await (data.skip(skip).limit(limit).toArray()),
     skip,
@@ -33,8 +36,8 @@ const toPage = async (data, skip = 0, limit = 50) => {
 };
 
 postsRouter.get(``, async(async (req, res) => {
-  let limit = req.query.limit ? Number(req.query.limit) : 50;
-  let skip = req.query.skip ? Number(req.query.skip) : 0;
+  let limit = req.query.limit ? Number(req.query.limit) : DEFAULT_LIMIT;
+  let skip = req.query.skip ? Number(req.query.skip) : DEFAULT_SKIP;
 
   res.send(await toPage(await postsRouter.postStore.getAllPosts(), skip, limit));
 }));
