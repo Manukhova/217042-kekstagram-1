@@ -76,11 +76,22 @@ module.exports = {
       }
     } else {
       logger.error(exception);
-      data = {
-        code: 500,
-        message: `Internal Error`,
-        errorMessage: `Server has fallen into unrecoverable problem.`
-      };
+      switch (exception.code) {
+        case 404:
+          data = {
+            code: 404,
+            message: `Not Found`,
+            errorMessage: exception.errorMessage
+          };
+          break;
+        default:
+          data = {
+            code: 500,
+            message: `Internal Error`,
+            errorMessage: `Server has fallen into unrecoverable problem.`
+          };
+      }
+
     }
     render(req, res, data, false);
   }

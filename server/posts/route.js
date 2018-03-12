@@ -32,7 +32,12 @@ const toPage = async (data, skip = 0, limit = 50) => {
   };
 };
 
-postsRouter.get(``, async(async (req, res) => res.send(await toPage(await postsRouter.postStore.getAllPosts()))));
+postsRouter.get(``, async(async (req, res) => {
+  let limit = req.query.limit ? Number(req.query.limit) : 50;
+  let skip = req.query.skip ? Number(req.query.skip) : 0;
+
+  res.send(await toPage(await postsRouter.postStore.getAllPosts(), skip, limit));
+}));
 
 postsRouter.get(`/:date`, async(async (req, res) => {
   const date = Number(req.params[`date`]);
