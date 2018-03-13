@@ -1,7 +1,7 @@
 const util = require(`util`);
 const {MongoError} = require(`mongodb`);
 const ValidationError = require(`../error/validation-error`);
-const logger = require(`../logger`);
+const NotFoundError = require(`../error/not-found-error`);
 
 const SUCCESS_CODE = 200;
 const BAD_DATA_CODE = 400;
@@ -60,7 +60,7 @@ module.exports = {
   renderDataSuccess: (req, res, data) => render(req, res, data, true),
   renderDataError: (req, res, data) => render(req, res, data, false),
   renderException: (req, res, exception) => {
-    let data = exception;
+    let data;
     if (exception instanceof ValidationError) {
       data = exception.errors;
     } else if (exception instanceof MongoError) {
@@ -74,8 +74,9 @@ module.exports = {
           data.code = 501;
           data.errorMessage = exception.message;
       }
+    } else if (exception instanceof NotFoundError) {
+      data = exception;
     } else {
-      logger.error(exception);
       data = {
         code: 500,
         message: `Internal Error`,
