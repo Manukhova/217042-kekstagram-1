@@ -42,30 +42,30 @@ postsRouter.get(``, async(async (req, res) => {
   res.send(await toPage(await postsRouter.postStore.getAllPosts(), skip, limit));
 }));
 
-postsRouter.get(`/:date`, async(async (req, res) => {
-  const date = Number(req.params[`date`]);
+postsRouter.get(`/:clientId`, async(async (req, res) => {
+  const clientId = Number(req.params[`clientId`]);
 
-  const post = await postsRouter.postStore.getPost(date);
+  const post = await postsRouter.postStore.getPost(clientId);
   if (!post) {
-    throw new NotFoundError(`Post with date "${date}" not found`);
+    throw new NotFoundError(`Post with clientId "${clientId}" not found`);
   } else {
     res.send(post);
   }
 }));
 
-postsRouter.get(`/:date/image`, async(async (req, res) => {
-  const date = Number(req.params[`date`]);
+postsRouter.get(`/:clientId/image`, async(async (req, res) => {
+  const clientId = Number(req.params[`clientId`]);
 
-  const post = await postsRouter.postStore.getPost(date);
+  const post = await postsRouter.postStore.getPost(clientId);
 
   if (!post) {
-    throw new NotFoundError(`Post with date "${date}" not found`);
+    throw new NotFoundError(`Post with clientId "${clientId}" not found`);
   }
 
   const image = post.filename;
 
   if (!image) {
-    throw new NotFoundError(`Post with date "${date}" didn't upload image`);
+    throw new NotFoundError(`Post with clientId "${clientId}" didn't upload image`);
   }
 
   const {info, stream} = await postsRouter.imageStore.get(image.path);
@@ -83,8 +83,9 @@ postsRouter.get(`/:date/image`, async(async (req, res) => {
 postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   const data = req.body;
   const image = req.file || data.filename;
-  data.likes = Number(data.likes);
-  data.scale = Number(data.scale);
+  data.clientId = Number(data.clientId);
+  data.roomsNumber = Number(data.roomsNumber);
+  data.flatSquare = Number(data.flatSquare);
   data.date = data.date || Number(new Date());
   logger.info(`Received data from user: `, data);
 
@@ -100,7 +101,7 @@ postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
 
   if (image) {
     const imageInfo = {
-      path: `/api/posts/${data.date}/image`,
+      path: `/api/posts/${data.clientId}/image`,
       mimetype: image.mimetype
     };
     await postsRouter.imageStore.save(imageInfo.path, createStreamFromBuffer(image.buffer));

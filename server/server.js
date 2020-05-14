@@ -8,7 +8,7 @@ const logger = require(`./logger`);
 const app = express();
 app.use(express.static(`static`));
 
-app.use(`/api/posts`, postsRouter);
+app.use(`/api/client`, postsRouter);
 
 const HOSTNAME = process.env.SERVER_HOST || `localhost`;
 
