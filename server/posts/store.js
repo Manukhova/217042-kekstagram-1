@@ -4,7 +4,7 @@ const logger = require(`../logger`);
 const setupCollection = async () => {
   const dBase = await db;
 
-  const collection = dBase.collection(`posts`);
+  const collection = dBase.collection(`info`);
   collection.createIndex({date: -1}, {unique: true});
   return collection;
 };
