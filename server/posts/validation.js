@@ -36,7 +36,6 @@ const isArray = () => {
 
 const schema = {
   'filename': {
-    required: true,
     assertions: [
       isImage()
     ]

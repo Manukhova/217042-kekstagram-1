@@ -14,11 +14,18 @@ const DEFAULT_LIMIT = 50;
 
 const async = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
-const postsRouter = new Router();
+const clientsRouter = new Router();
+const companiesRouter = new Router();
 
-postsRouter.use(bodyParser.json());
+clientsRouter.use(bodyParser.json());
+companiesRouter.use(bodyParser.json());
 
-postsRouter.use((req, res, next) => {
+clientsRouter.use((req, res, next) => {
+  res.header(`Access-Control-Allow-Origin`, `*`);
+  res.header(`Access-Control-Allow-Headers`, `Origin, X-Requested-With, Content-Type, Accept`);
+  next();
+});
+companiesRouter.use((req, res, next) => {
   res.header(`Access-Control-Allow-Origin`, `*`);
   res.header(`Access-Control-Allow-Headers`, `Origin, X-Requested-With, Content-Type, Accept`);
   next();
@@ -35,17 +42,25 @@ const toPage = async (data, skip, limit) => {
   };
 };
 
-postsRouter.get(``, async(async (req, res) => {
+clientsRouter.get(``, async(async (req, res) => {
   let limit = Number(req.query.limit) || DEFAULT_LIMIT;
   let skip = Number(req.query.skip) || DEFAULT_SKIP;
 
-  res.send(await toPage(await postsRouter.postStore.getAllPosts(), skip, limit));
+  res.send(await toPage(await clientsRouter.clientsStore.getAllClients(), skip, limit));
 }));
 
-postsRouter.get(`/:clientId`, async(async (req, res) => {
+companiesRouter.get(``, async(async (req, res) => {
+  let limit = Number(req.query.limit) || DEFAULT_LIMIT;
+  let skip = Number(req.query.skip) || DEFAULT_SKIP;
+
+  res.send(await toPage(await companiesRouter.companiesStore.getAllCompanies(), skip, limit));
+}));
+
+
+clientsRouter.get(`/:clientId`, async(async (req, res) => {
   const clientId = Number(req.params[`clientId`]);
 
-  const post = await postsRouter.postStore.getPost(clientId);
+  const post = await clientsRouter.clientsStore.getClient(clientId);
   if (!post) {
     throw new NotFoundError(`Post with clientId "${clientId}" not found`);
   } else {
@@ -53,10 +68,21 @@ postsRouter.get(`/:clientId`, async(async (req, res) => {
   }
 }));
 
-postsRouter.get(`/:clientId/image`, async(async (req, res) => {
+companiesRouter.get(`/:companyId`, async(async (req, res) => {
+  const companyId = Number(req.params[`companyId`]);
+
+  const company = await companiesRouter.companiesStore.getCompanies(companyId);
+  if (!company) {
+    throw new NotFoundError(`Post with clientId "${companyId}" not found`);
+  } else {
+    res.send(company);
+  }
+}));
+
+clientsRouter.get(`/:clientId/image`, async(async (req, res) => {
   const clientId = Number(req.params[`clientId`]);
 
-  const post = await postsRouter.postStore.getPost(clientId);
+  const post = await clientsRouter.clientsStore.getClient(clientId);
 
   if (!post) {
     throw new NotFoundError(`Post with clientId "${clientId}" not found`);
@@ -68,7 +94,7 @@ postsRouter.get(`/:clientId/image`, async(async (req, res) => {
     throw new NotFoundError(`Post with clientId "${clientId}" didn't upload image`);
   }
 
-  const {info, stream} = await postsRouter.imageStore.get(image.path);
+  const {info, stream} = await clientsRouter.imageStore.get(image.path);
 
   if (!info) {
     throw new NotFoundError(`File was not found`);
@@ -80,7 +106,7 @@ postsRouter.get(`/:clientId/image`, async(async (req, res) => {
   stream.pipe(res);
 }));
 
-postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
+clientsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   const data = req.body;
   const image = req.file || data.filename;
   data.clientId = Number(data.clientId);
@@ -104,21 +130,35 @@ postsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
       path: `/api/posts/${data.clientId}/image`,
       mimetype: image.mimetype
     };
-    await postsRouter.imageStore.save(imageInfo.path, createStreamFromBuffer(image.buffer));
+    await clientsRouter.imageStore.save(imageInfo.path, createStreamFromBuffer(image.buffer));
     data.filename = imageInfo;
   }
 
-  await postsRouter.postStore.save(data);
+  await clientsRouter.clientsStore.save(data);
   dataRenderer.renderDataSuccess(req, res, data);
 }));
 
-postsRouter.use((exception, req, res, next) => {
+companiesRouter.post(``, upload.single(`filename`), async(async (req, res) => {
+  const data = req.body;
+  data.companyId = Number(data.companyId);
+  data.date = data.date || Number(new Date());
+  logger.info(`Received data from user: `, data);
+
+  await companiesRouter.companiesStore.save(data);
+  dataRenderer.renderDataSuccess(req, res, data);
+}));
+
+clientsRouter.use((exception, req, res, next) => {
   dataRenderer.renderException(req, res, exception);
   next();
 });
 
-module.exports = (postStore, imageStore) => {
-  postsRouter.postStore = postStore;
-  postsRouter.imageStore = imageStore;
-  return postsRouter;
+module.exports = (clientsStore, companiesStore, imageStore) => {
+  clientsRouter.clientsStore = clientsStore;
+  clientsRouter.imageStore = imageStore;
+  companiesRouter.companiesStore = companiesStore;
+  return {
+    companiesRouter,
+    clientsRouter
+  };
 };

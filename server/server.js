@@ -1,14 +1,15 @@
 const express = require(`express`);
 
-const postStore = require(`./posts/store`);
+const {clientsStore, companiesStore} = require(`./posts/store`);
 const imageStore = require(`./util/image-store`);
-const postsRouter = require(`./posts/route`)(postStore, imageStore);
+const {clientsRouter, companiesRouter} = require(`./posts/route`)(clientsStore, companiesStore, imageStore);
 const logger = require(`./logger`);
 
 const app = express();
 app.use(express.static(`static`));
 
-app.use(`/api/client`, postsRouter);
+app.use(`/api/client`, clientsRouter);
+app.use(`/api/company`, companiesRouter);
 
 const HOSTNAME = process.env.SERVER_HOST || `localhost`;
 
