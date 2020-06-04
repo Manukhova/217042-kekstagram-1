@@ -68,12 +68,23 @@ clientsRouter.get(`/:clientId`, async(async (req, res) => {
   }
 }));
 
-companiesRouter.get(`/:companyId`, async(async (req, res) => {
-  const companyId = Number(req.params[`companyId`]);
+// companiesRouter.get(`/:companyId`, async(async (req, res) => {
+//   const companyId = Number(req.params[`companyId`]);
+//
+//   const company = await companiesRouter.companiesStore.getCompanies(companyId);
+//   if (!company) {
+//     throw new NotFoundError(`Post with clientId "${companyId}" not found`);
+//   } else {
+//     res.send(company);
+//   }
+// }));
 
-  const company = await companiesRouter.companiesStore.getCompanies(companyId);
+companiesRouter.get(`/:companyName`, async(async (req, res) => {
+  const companyName = req.params[`companyName`];
+
+  const company = await companiesRouter.companiesStore.getCompaniesByName(companyName);
   if (!company) {
-    throw new NotFoundError(`Post with clientId "${companyId}" not found`);
+    throw new NotFoundError(`Post with companyName "${companyName}" not found`);
   } else {
     res.send(company);
   }
@@ -138,6 +149,38 @@ clientsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   dataRenderer.renderDataSuccess(req, res, data);
 }));
 
+clientsRouter.patch(`/:clientId`, upload.none(), async(async (req, res) => {
+  const clientId = Number(req.params[`clientId`]);
+  const data = req.body;
+  data.clientId = Number(clientId);
+  data.date = data.date || Number(new Date());
+  logger.info(`Received data for update: `, data);
+
+  await clientsRouter.clientsStore.updateClient(data.clientId, data);
+  dataRenderer.renderDataSuccess(req, res, data);
+}));
+
+// companiesRouter.patch(`/:companyId`, upload.none(), async(async (req, res) => {
+//   const companyId = Number(req.params[`companyId`]);
+//   const data = req.body;
+//   data.companyId = Number(companyId);
+//   data.date = data.date || Number(new Date());
+//   logger.info(`Received data for update: `, data);
+//
+//   await companiesRouter.companiesStore.updateCompany(data.companyId, data);
+//   dataRenderer.renderDataSuccess(req, res, data);
+// }));
+
+companiesRouter.patch(`/:companyName`, upload.none(), async(async (req, res) => {
+  const companyName = req.params[`companyName`];
+  const data = req.body;
+  data.date = data.date || Number(new Date());
+  logger.info(`Received data for update: `, data);
+
+  await companiesRouter.companiesStore.updateCompanyByName(companyName, data);
+  dataRenderer.renderDataSuccess(req, res, data);
+}));
+
 companiesRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   const data = req.body;
   data.companyId = Number(data.companyId);
@@ -149,6 +192,11 @@ companiesRouter.post(``, upload.single(`filename`), async(async (req, res) => {
 }));
 
 clientsRouter.use((exception, req, res, next) => {
+  dataRenderer.renderException(req, res, exception);
+  next();
+});
+
+companiesRouter.use((exception, req, res, next) => {
   dataRenderer.renderException(req, res, exception);
   next();
 });
