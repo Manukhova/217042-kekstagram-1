@@ -1,4 +1,5 @@
 const {Router} = require(`express`);
+const uuid = require('uuid');
 const {validateSchema} = require(`../util/validator`);
 const postSchema = require(`./validation`);
 const dataRenderer = require(`../util/data-renderer`);
@@ -16,9 +17,11 @@ const async = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
 const clientsRouter = new Router();
 const companiesRouter = new Router();
+const authRouter = new Router();
 
 clientsRouter.use(bodyParser.json());
 companiesRouter.use(bodyParser.json());
+authRouter.use(bodyParser.json());
 
 clientsRouter.use((req, res, next) => {
   res.header(`Access-Control-Allow-Origin`, `*`);
@@ -130,12 +133,6 @@ clientsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
     data.filename = image;
   }
 
-  const errors = validateSchema(data, postSchema);
-
-  if (errors.length > 0) {
-    throw new ValidationError(errors);
-  }
-
   if (image) {
     const imageInfo = {
       path: `/api/posts/${data.clientId}/image`,
@@ -191,6 +188,40 @@ companiesRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   dataRenderer.renderDataSuccess(req, res, data);
 }));
 
+authRouter.post(`/:role/registration`, upload.none(), async(async (req, res) => {
+  const email = req.body.email;
+  const role = req.params[`role`];
+  logger.info(`Received email ${email} for role ${role}`);
+
+  const user = await authRouter.authStore.getUserByEmail(email);
+
+  if (!user) {
+    const data = {
+      email,
+      role,
+      password: req.body.password
+    };
+    await authRouter.authStore.saveUser(data);
+    res.send("Success")
+  } else {
+    throw new Error('Такой пользователь уже есть')
+  }
+}));
+
+authRouter.post(`/:role/login`, upload.none(), async(async (req, res) => {
+  const email = req.body.email;
+  const role = req.params[`role`];
+  logger.info(`Received email ${email} for role ${role}`);
+
+  const user = await authRouter.authStore.getUserByEmail(email);
+
+  if (user && req.body.password === user.password && role === user.role) {
+    res.send("Success")
+  } else {
+    throw new Error('Неверные данные')
+  }
+}));
+
 clientsRouter.use((exception, req, res, next) => {
   dataRenderer.renderException(req, res, exception);
   next();
@@ -201,12 +232,19 @@ companiesRouter.use((exception, req, res, next) => {
   next();
 });
 
-module.exports = (clientsStore, companiesStore, imageStore) => {
+authRouter.use((exception, req, res, next) => {
+  dataRenderer.renderException(req, res, exception);
+  next();
+});
+
+module.exports = (clientsStore, companiesStore, imageStore, authStore) => {
   clientsRouter.clientsStore = clientsStore;
   clientsRouter.imageStore = imageStore;
   companiesRouter.companiesStore = companiesStore;
+  authRouter.authStore = authStore;
   return {
     companiesRouter,
-    clientsRouter
+    clientsRouter,
+    authRouter
   };
 };

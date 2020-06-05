@@ -17,6 +17,13 @@ const setupCompaniesCollection = async () => {
   return collection;
 };
 
+const setupAuthCollection = async () => {
+  const dBase = await db;
+
+  const collection = dBase.collection(`auth`);
+  return collection;
+};
+
 class ClientsStore {
   constructor(collection) {
     this.collection = collection;
@@ -77,10 +84,42 @@ class CompaniesStore {
         {$set: updateObject}
     );
   }
+}
 
+class AuthStore {
+  constructor(collection) {
+    this.collection = collection;
+  }
+
+  async getUserByEmail(email) {
+    return (await this.collection).findOne({email});
+  }
+
+  async addToken(token, email) {
+    return (await this.collection).updateOne(
+      {email},
+      {$set: {token}}
+    );
+  }
+
+  async getToken(token) {
+    return (await this.collection).findOne({token});
+  }
+
+  async saveUser(data) {
+    return (await this.collection).insertOne(data);
+  }
+
+  async update(companyId, updateObject) {
+    return (await this.collection).updateOne(
+      {companyId},
+      {$set: updateObject}
+    );
+  }
 }
 
 module.exports = {
   clientsStore: new ClientsStore(setupClientsCollection().catch((e) => logger.error(`Failed to set up "clients"-collection`, e))),
-  companiesStore: new CompaniesStore(setupCompaniesCollection().catch((e) => logger.error(`Failed to set up "companies"-collection`, e)))
+  companiesStore: new CompaniesStore(setupCompaniesCollection().catch((e) => logger.error(`Failed to set up "companies"-collection`, e))),
+  authStore: new AuthStore(setupAuthCollection().catch((e) => logger.error(`Failed to set up "auth"-collection`, e)))
 };

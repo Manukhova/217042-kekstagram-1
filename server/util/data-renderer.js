@@ -46,13 +46,13 @@ const render = (req, res, data, success) => {
   const badStatusCode = data.code ? data.code : BAD_DATA_CODE;
   res.status(success ? SUCCESS_CODE : badStatusCode);
   switch (req.accepts([`json`, `html`])) {
-    case `html`:
-      res.set(`Content-Type`, `text/html`);
-      const referer = req.header(`Referer`);
-      res.send((success ? renderSuccessHtml : renderErrorHtml)(data, referer));
-      break;
+    // case `html`:
+    //   res.set(`Content-Type`, `text/html`);
+    //   const referer = req.header(`Referer`);
+    //   res.send((success ? renderSuccessHtml : renderErrorHtml)(data, referer));
+    //   break;
     default:
-      res.json(data);
+      res.json(`${data}`);
   }
 };
 
@@ -77,11 +77,7 @@ module.exports = {
     } else if (exception instanceof NotFoundError) {
       data = exception;
     } else {
-      data = {
-        code: 500,
-        message: `Internal Error`,
-        errorMessage: `Server has fallen into unrecoverable problem.`
-      };
+      data = exception;
     }
     render(req, res, data, false);
   }
