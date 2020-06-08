@@ -1,9 +1,6 @@
 const {Router} = require(`express`);
 const uuid = require('uuid');
-const {validateSchema} = require(`../util/validator`);
-const postSchema = require(`./validation`);
 const dataRenderer = require(`../util/data-renderer`);
-const ValidationError = require(`../error/validation-error`);
 const NotFoundError = require(`../error/not-found-error`);
 const createStreamFromBuffer = require(`../util/buffer-to-stream`);
 const bodyParser = require(`body-parser`);
@@ -71,16 +68,16 @@ clientsRouter.get(`/:clientId`, async(async (req, res) => {
   }
 }));
 
-// companiesRouter.get(`/:companyId`, async(async (req, res) => {
-//   const companyId = Number(req.params[`companyId`]);
-//
-//   const company = await companiesRouter.companiesStore.getCompanies(companyId);
-//   if (!company) {
-//     throw new NotFoundError(`Post with clientId "${companyId}" not found`);
-//   } else {
-//     res.send(company);
-//   }
-// }));
+companiesRouter.get(`/:companyId`, async(async (req, res) => {
+  const companyId = Number(req.params[`companyId`]);
+
+  const company = await companiesRouter.companiesStore.getCompanies(companyId);
+  if (!company) {
+    throw new NotFoundError(`Post with clientId "${companyId}" not found`);
+  } else {
+    res.send(company);
+  }
+}));
 
 companiesRouter.get(`/:companyName`, async(async (req, res) => {
   const companyName = req.params[`companyName`];
@@ -123,9 +120,9 @@ clientsRouter.get(`/:clientId/image`, async(async (req, res) => {
 clientsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   const data = req.body;
   const image = req.file || data.filename;
-  data.clientId = Number(data.clientId);
-  data.roomsNumber = Number(data.roomsNumber);
-  data.flatSquare = Number(data.flatSquare);
+  data.clientId = Number(data.clientId) || null;
+  data.roomsNumber = Number(data.roomsNumber) || null;
+  data.flatSquare = Number(data.flatSquare) || null;
   data.date = data.date || Number(new Date());
   logger.info(`Received data from user: `, data);
 
@@ -157,16 +154,16 @@ clientsRouter.patch(`/:clientId`, upload.none(), async(async (req, res) => {
   dataRenderer.renderDataSuccess(req, res, data);
 }));
 
-// companiesRouter.patch(`/:companyId`, upload.none(), async(async (req, res) => {
-//   const companyId = Number(req.params[`companyId`]);
-//   const data = req.body;
-//   data.companyId = Number(companyId);
-//   data.date = data.date || Number(new Date());
-//   logger.info(`Received data for update: `, data);
-//
-//   await companiesRouter.companiesStore.updateCompany(data.companyId, data);
-//   dataRenderer.renderDataSuccess(req, res, data);
-// }));
+companiesRouter.patch(`/:companyId`, upload.none(), async(async (req, res) => {
+  const companyId = Number(req.params[`companyId`]);
+  const data = req.body;
+  data.companyId = Number(companyId);
+  data.date = data.date || Number(new Date());
+  logger.info(`Received data for update: `, data);
+
+  await companiesRouter.companiesStore.updateCompany(data.companyId, data);
+  dataRenderer.renderDataSuccess(req, res, data);
+}));
 
 companiesRouter.patch(`/:companyName`, upload.none(), async(async (req, res) => {
   const companyName = req.params[`companyName`];
@@ -196,12 +193,31 @@ authRouter.post(`/:role/registration`, upload.none(), async(async (req, res) => 
   const user = await authRouter.authStore.getUserByEmail(email);
 
   if (!user) {
-    const data = {
+    const authData = {
       email,
       role,
       password: req.body.password
     };
-    await authRouter.authStore.saveUser(data);
+    await authRouter.authStore.saveUser(authData);
+
+    const data = req.body;
+
+    if (role === 'client') {
+      data.clientId = Number(data.clientId) || null;
+      data.roomsNumber = Number(data.roomsNumber) || null;
+      data.flatSquare = Number(data.flatSquare) || null;
+    }
+
+    if (role === "company") {
+      data.companyId = Number(data.companyId);
+    }
+
+    data.date = data.date || Number(new Date());
+
+    const { password, ...noPwdData } = data;
+
+    await clientsRouter.clientsStore.save(noPwdData);
+
     res.send("Success")
   } else {
     throw new Error('Такой пользователь уже есть')
