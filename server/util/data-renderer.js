@@ -46,13 +46,13 @@ const render = (req, res, data, success) => {
   const badStatusCode = data.code ? data.code : BAD_DATA_CODE;
   res.status(success ? SUCCESS_CODE : badStatusCode);
   switch (req.accepts([`json`, `html`])) {
-    // case `html`:
-    //   res.set(`Content-Type`, `text/html`);
-    //   const referer = req.header(`Referer`);
-    //   res.send((success ? renderSuccessHtml : renderErrorHtml)(data, referer));
-    //   break;
+    case `html`:
+      res.set(`Content-Type`, `text/html`);
+      const referer = req.header(`Referer`);
+      res.send((success ? renderSuccessHtml : renderErrorHtml)(data, referer));
+      break;
     default:
-      res.json(`${data}`);
+      res.send(data);
   }
 };
 

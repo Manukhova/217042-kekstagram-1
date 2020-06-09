@@ -6,6 +6,8 @@ const createStreamFromBuffer = require(`../util/buffer-to-stream`);
 const bodyParser = require(`body-parser`);
 const multer = require(`multer`);
 const logger = require(`../logger`);
+const nodemailer = require("nodemailer");
+const send = require('gmail-send');
 
 const DEFAULT_SKIP = 0;
 const DEFAULT_LIMIT = 50;
@@ -140,6 +142,32 @@ clientsRouter.post(``, upload.single(`filename`), async(async (req, res) => {
   }
 
   await clientsRouter.clientsStore.save(data);
+
+  let mailString = '';
+  for (const key of Object.keys(data)) {
+    mailString +=`<p>${key}: ${data[key]}</p>`
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host : "smtp.gmail.com",
+    port : "465",
+    ssl : true,
+    auth: {
+      user: 'Inkatravinka@gmail.com',
+      pass: 'cneupmxstjnualpx'
+    },
+    debug: true
+  });
+
+  let result = await transporter.sendMail({
+    from: 'Inessa@inessa.com',
+    to: 'Inkatravinka@gmail.com',
+    subject: 'New order received',
+    text: `New order received`,
+    html: `<h1>New order received:<h1>${mailString}`
+  });
+
   dataRenderer.renderDataSuccess(req, res, data);
 }));
 
